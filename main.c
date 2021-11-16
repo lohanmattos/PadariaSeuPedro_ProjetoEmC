@@ -1,7 +1,9 @@
 #include<stdio.h>
+#include<locale.h>
+#include <string.h>
 
 //Define a quantidade de produtos da loja
-int itensLoja = 5; 
+const int itensLoja = 5; 
 
 // Declaração das Funções
 void Menu();
@@ -20,14 +22,19 @@ void AlterarEstoque();
 
 //Programa Principal
 int main(){
+    //localização pt-br
+    setlocale(LC_ALL, "Portuguese");
 
     // Cria um vetor para armazenar os itens da loja
     Produtos vetorProdutos[itensLoja];
-    Menu();
+
+    //Chama o menu inicial 
+    Menu(vetorProdutos);
 
 }
 
-void Menu(){
+void Menu(Produtos vetor[]){
+
     int opcao = 0; 
 
     printf("\n---------- Padaria do Seu Pedro -----------\n\n\n");
@@ -36,6 +43,7 @@ void Menu(){
     printf("2) Listar Produto. \n");
     printf("3) Vender Produto. \n");
     printf("4) Alterar Estoque. \n\n");
+    printf("0) Sair. \n\n");
 
 
     printf("Opcao: ");
@@ -44,16 +52,16 @@ void Menu(){
     switch (opcao)
     {
     case 1:
-        CadastrarProduto();
+        CadastrarProduto(vetor);
         break;
     case 2:
-        ListaProdutos();
+        ListaProdutos(vetor);
         break;  
     case 3:
-        VenderProduto();
+        VenderProduto(vetor);
         break;
     case 4:
-        AlterarEstoque();
+        AlterarEstoque(vetor);
         break;  
     
     default:
@@ -61,11 +69,12 @@ void Menu(){
     }
 }
 
-void CadastrarProduto(){
+//Quantidade de produtos adicionados no vetor 
+int quantidadeItens = 0;
+
+void CadastrarProduto(Produtos vetor[]){
     int opcao = 0;
     Produtos produto;
-    Produtos vetorProdutos[itensLoja];
-
     do
     {
         printf("Codigo do Produto: ");
@@ -80,31 +89,121 @@ void CadastrarProduto(){
         printf("Informe preco: ");
         scanf("%f", &produto.preco);
 
-        vetorProdutos[0] = produto;
+        vetor[quantidadeItens] = produto;
 
-        printf("Deseja um NOVO produto ? (0=sim , 1=não)");
-        itensLoja++;
-
+        printf("Deseja um NOVO produto ? (0=Sim , 1=Nao)");
+        //itensLoja++;
+        quantidadeItens++;
         scanf("%d", &opcao);   
    
     } while (opcao == 0);
-        //printf("Codigo: %d Nome: %s Quantidade: %.2f Preco: %.2f \n", produto.codigo, produto.nome,
-        //produto.quantidadeKg, produto.preco);
-
-        //printf("Codigo: %d Nome: %s Quantidade: %.2f Preco: %.2f \n", vetorProdutos[0].codigo, vetorProdutos[0].nome,
-        //vetorProdutos[0].quantidadeKg, vetorProdutos[0].preco);
-
-    Menu(); 
+    Menu(vetor); 
 }
 
-void ListaProdutos(){
+void ListaProdutos(Produtos vetor[]){
+
+    int opcao = 0;
+
+    while (opcao == 0)
+    {
+        for (int i = 0; i < quantidadeItens; i++)
+        {
+        printf("Codigo: %d | Nome: %s | Quantidade: %.2f | Preco: %.2f \n", vetor[i].codigo, vetor[i].nome,
+            vetor[i].quantidadeKg, vetor[i].preco);
+        }
+
+        printf("Deseja voltar ao menu inicial: (0= Nao , 1=Sim)");
+        scanf("%d", &opcao);
+
+    }
+
+    Menu(vetor);
+
+}
+
+void VenderProduto(Produtos vetor[]){
     
+    int opcao = 0; 
+
+    while (opcao == 0)
+    {
+        int existe = 1;
+        int codigoProduto;
+        float quantidadeVendida = 0.0;
+
+        printf("Digite o nome do Produto a ser vendido: ");
+        scanf("%d", &codigoProduto);
+
+        //Procura o produto dentro do vetor de produtos 
+        for (int i = 0; i < quantidadeItens; i++)
+        {
+            //Verifica se o produto existe, retornando 0 caso exista.  
+            //existe = strcmp(nomeProduto, vetor[i].nome);   
+            if (vetor[i].codigo == codigoProduto)
+            {   
+                float qtdEstoque =  vetor[i].quantidadeKg; 
+                printf("Nome do Produto: %s | qtd Em Estoque: %.2f \n", vetor[i].nome, qtdEstoque);
+                printf("Quantidade a ser vendida ? ");
+                scanf("%f", &quantidadeVendida);
+
+                vetor[i].quantidadeKg =  vetor[i].quantidadeKg - quantidadeVendida; 
+
+                printf("Produto vendido com sucesso\n");
+                printf("Estoque atual: %.2f\n",vetor[i].quantidadeKg);
+
+            }else{
+                printf("Produto nao encontrado. Por Favor, verifique o item digitado.\n");
+            }
+            
+        }
+      
+      printf("Deseja vender outro produto: (0=Sim , 1=Nao) ");
+      scanf("%d", &opcao);
+
+    }
+    Menu(vetor);
 }
 
-void VenderProduto(){
+void AlterarEstoque(Produtos vetor[]){
 
-}
+int opcao = 0; 
 
-void AlterarEstoque(){
+    while (opcao == 0)
+    {
+        int existe = 1;
+        int codigoProduto;
+        float quantidadeFabricada = 0.0;
+
+        printf("Digite o nome do Produto a ser estocado: ");
+        scanf("%d", &codigoProduto);
+
+        //Procura o produto dentro do vetor de produtos 
+        for (int i = 0; i < quantidadeItens; i++)
+        {
+            //Verifica se o produto existe  
+            if (vetor[i].codigo == codigoProduto)
+            {    
+                printf("Codigo do Produto: %s \n", vetor[i].nome);
+                printf("Quantidade a ser estocada ? ");
+                scanf("%f", &quantidadeFabricada);
+                float qtdAnterior = vetor[i].quantidadeKg;
+
+                vetor[i].quantidadeKg =  vetor[i].quantidadeKg + quantidadeFabricada; 
+
+                printf("Produto Atualizado com sucesso. \n");
+                printf("Qtd Anterior: %.2f | qtd Atual: %.2f\n", qtdAnterior,vetor[i].quantidadeKg);
+
+            }else{
+                printf("Produto nao encontrado. Por Favor, verifique o item digitado.\n");
+            }
+            
+        }
+      
+      printf("Deseja estocar outro produto: (0=Sim , 1=Nao) ");
+      scanf("%d", &opcao);
+
+    }
+    Menu(vetor);
+
 
 }
